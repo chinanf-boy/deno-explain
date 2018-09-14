@@ -14,14 +14,15 @@
 ## explain 🀄️
 <!-- doc-templite START generated -->
 <!-- time = '2018 9.10' -->
-<!-- repo = 'denoland/deno' -->
+<!-- name = 'denoland' -->
+<!-- repo = 'deno' -->
 <!-- commit = 'c2663e1d82521e9b68a7e2e96197030a4ee00c30' -->
 版本 | 与日期 | 最新更新 | 更多
 ---|---|---|---
-[c2663e1d82521e9b68a7e2e96197030a4ee00c30][commit] | ⏰ 2018 9.10 | ![version] | [源码解释][source]
+[commit] | ⏰ 2018 9.10 | ![version] | [源码解释][source]
 
-[commit]: https://github.com//denoland/deno/tree/c2663e1d82521e9b68a7e2e96197030a4ee00c30
-[version]: https://img.shields.io/npm/v/denoland/deno.svg
+[commit]: https://github.com/denoland/deno/tree/c2663e1d82521e9b68a7e2e96197030a4ee00c30
+[version]: https://img.shields.io/npm/v/deno.svg
 
 <!-- doc-templite END generated -->
 
