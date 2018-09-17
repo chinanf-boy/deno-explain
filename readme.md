@@ -13,6 +13,7 @@
 
 ## explain 🀄️
 <!-- doc-templite START generated -->
+<!-- docTempliteId = 'github' -->
 <!-- time = '2018 9.10' -->
 <!-- name = 'denoland' -->
 <!-- repo = 'deno' -->
@@ -22,7 +23,7 @@
 [commit] | ⏰ 2018 9.10 | ![version] | [源码解释][source]
 
 [commit]: https://github.com/denoland/deno/tree/c2663e1d82521e9b68a7e2e96197030a4ee00c30
-[version]: https://img.shields.io/npm/v/deno.svg
+[version]: https://img.shields.io/github/tag/denoland/deno.svg
 
 <!-- doc-templite END generated -->
 
