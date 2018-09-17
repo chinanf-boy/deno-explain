@@ -142,9 +142,10 @@ def touch(fname):
 
 ### find_exts
 
+递归搜索某些扩展名的文件。
+
 ```py
-# 递归搜索某些扩展名的文件。
-# （python 2.7中不存在递归glob。）
+# （ python 2.7中不存在递归匹配glob模式. ）
 def find_exts(directory, *extensions):
     matches = []
     for root, dirnames, filenames in os.walk(directory):
@@ -159,8 +160,9 @@ def find_exts(directory, *extensions):
 
 ###  rmtree
 
+Python相当于`rm -rf`。
+
 ```py
-# Python相当于`rm -rf`。
 def rmtree(directory):
     # 在Windows上，shutil.rmtree() 不会删除具有只读位的文件。
     # Git创建了一些文件。 'onerror'回调处理那些。
