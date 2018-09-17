@@ -13,7 +13,6 @@ import subprocess
 
 executable_suffix = ".exe" if os.name == "nt" else ""
 root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
 ```
 
 ### make_env

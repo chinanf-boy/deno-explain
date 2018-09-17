@@ -12,6 +12,8 @@ from util import root_path, run, find_exts
 
 ### format
 
+格式化代码, 有五种那么多
+
 0. clang_format - `.cc`
 1. gn format - `.gn`
 2. yapf - `python`
@@ -54,4 +56,11 @@ run(["rustfmt", "--config-path", rustfmt_config] + find_exts("src/", ".rs")) # 4
 
 ```
 
-- [x] [util > find_exts](./tools/util.md#find_exts)
+- third_party
+    - [third_party_path](./tools/third_party.md#paths)
+    - [google_env](./tools/third_party.md#google_env)
+    - [clang_format_path](./tools/third_party.md#paths)
+- util
+    - [root_path](./tools/util.md#import)
+    - [run](./tools/util.md#run)
+    - [find_exts](./tools/util.md#find_exts)
