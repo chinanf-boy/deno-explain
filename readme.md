@@ -109,7 +109,7 @@
 
 `./tools/format.py`
 
-- [ ] [格式代码-脚本](./format.py.md)
+- [x] [格式代码-脚本](./format.py.md)
 
 ### ts
 ### rust
