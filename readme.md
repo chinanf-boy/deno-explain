@@ -96,13 +96,13 @@
 
 `./tools/build.py`
 
-- [ ] [构建-脚本](./build.py.md)
+- [x] [构建-脚本](./build.py.md)
 
 #### 3. Test.
 
 `./tools/test.py`
 
-- [ ] [测试-脚本](./test.py.md)
+- [x] [测试-脚本](./test.py.md)
 
 #### 4. Format
 

@@ -40,13 +40,12 @@ def tp(*subpath_parts):
 ### paths
 
 ``` py
-third_party_path = tp()
-depot_tools_path = tp("depot_tools")
-rust_crates_path = tp("rust_crates")
-gn_path = tp(depot_tools_path, "gn")
-clang_format_path = tp(depot_tools_path, "clang-format")
-ninja_path = tp(depot_tools_path, "ninja")
-
+third_party_path = tp() # 第三方包目录
+depot_tools_path = tp("depot_tools")  # 三方包/depot_tools
+rust_crates_path = tp("rust_crates") # 三方包/rust_crates
+gn_path = tp(depot_tools_path, "gn") # 三方包/depot_tools/gn
+clang_format_path = tp(depot_tools_path, "clang-format") # 三方包/depot_tools/clang-format
+ninja_path = tp(depot_tools_path, "ninja") # 三方包/depot_tools/ninja
 ```
 
 ### google_env
@@ -86,6 +85,8 @@ def google_env(env=None, merge_env={}, depot_tools_path=depot_tools_path):
 > 返回新的`env`副本,并被`merge_env[key]`-相同key赋值
 
 ### fix_symlinks
+
+制造各个快捷连接
 
 ``` py
 def fix_symlinks():

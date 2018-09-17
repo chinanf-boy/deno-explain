@@ -174,6 +174,8 @@ def rmtree(directory):
 
 ### build_mode
 
+有调试与生产两种版本的构建方式
+
 ```py
 def build_mode(default="debug"):
     if "DENO_BUILD_MODE" in os.environ:
@@ -181,8 +183,14 @@ def build_mode(default="debug"):
     else:
         return default
 
+```
 
-# 例如。 “出/调试”
+### build_path
+
+有调试与生产两种版本的构建路径
+
+```py
+# 例如,"out/debug"
 def build_path():
     if "DENO_BUILD_PATH" in os.environ:
         return os.environ["DENO_BUILD_PATH"]

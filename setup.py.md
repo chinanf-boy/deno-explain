@@ -178,7 +178,7 @@ def generate_gn_args(mode):
 
 GN 生成
 
-> deno第三方包-V8-使用的构建系统是[Ninja](https://ninja-build.org/)，而 GN 是用来生产 Ninja 构建文件的工具。
+> deno第三方包-V8-使用的构建系统是[Ninja](https://ninja-build.org/)，而 GN 是用来生成`.ninja`文件的工具。
 
 > GN 被包含在 [depot_tools](https://www.chromium.org/developers/how-tos/install-depot-tools) 中
 
