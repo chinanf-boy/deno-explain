@@ -42,9 +42,10 @@
 
 ### deno的语言构成
 
-> 算然说， rust是核心, 但repo却不仅仅有rust, 还有 python, ts, c，...
+> 算然说， rust是核心, 但repo却不仅仅有rust, 还有 python, ts, c，... 
 
-- [ ] [python](#python) 
+- [x] [python](#python) 
+    - [ ] deno-gn
 - [ ] [rust](#rust)
 - [ ] [ts](#ts)
 - [ ] //...
@@ -99,6 +100,25 @@
 
 - [x] [构建-脚本](./build.py.md)
 
+
+- [ ] [deno .gn的编写](deno-gn.md)
+
+> 构建脚本, 最重要的且唯一做得事情就是: 启动`v8-js引擎`的构建工具[ninja]
+
+对不熟悉[ninja]的同学, 提及一下:
+
+1. [ninja]为`v8项目`搭建一个使用`gcc`之类编译工具的工作流程再加点平台特性, 以此构建不同平台的二进制/发布版本 的功能
+2. `gn` 是为`ninja`服务的, 提供[ninja]专用的`***.ninja`文件
+3. 为什么需要另找`gn`提供ninja文件? 可能是因为,更快速或者扩展配置,也可能`***.ninja`语法对用户并不友好
+4. `gn`本身也具有自己的`**.gn`文件语法, 也就是可以根据不同平台生成对应`***.ninja`配置与工具链
+5. 总结(顺序): 编写`**.gn`文件 -> gn 根据这些文件生成 `**.ninja` -> [ninja] 再根据这些文件运行搭载配置工具链
+
+> 这种专有工具使用的专用后缀文件中的 特定语法 - 可以称为[DSL](http://www.yinwang.org/blog-cn/2017/05/25/dsl)
+
+> `gn` 由 depot_tools 提供 - [一点解释](http://gclxry.com/use-depot_tools-to-manage-chromium-source/)
+
+[ninja]: https://ninja-build.org/
+
 #### 3. Test.
 
 `./tools/test.py`
@@ -111,5 +131,6 @@
 
 - [x] [格式代码-脚本](./format.py.md)
 
-### ts
 ### rust
+
+### ts
