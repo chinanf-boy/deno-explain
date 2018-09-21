@@ -45,7 +45,7 @@
 > 算然说， rust是核心, 但repo却不仅仅有rust, 还有 python, ts, c，... 
 
 - [x] [python](#python) 
-    - [ ] deno-gn
+- [ ] [deno-gn](./deno-gn.md)
 - [ ] [rust](#rust)
 - [ ] [ts](#ts)
 - [ ] //...
@@ -100,9 +100,6 @@
 
 - [x] [构建-脚本](./build.py.md)
 
-
-- [ ] [deno .gn的编写](deno-gn.md)
-
 > 构建脚本, 最重要的且唯一做得事情就是: 启动`v8-js引擎`的构建工具[ninja]
 
 对不熟悉[ninja]的同学, 提及一下:
@@ -130,6 +127,10 @@
 `./tools/format.py`
 
 - [x] [格式代码-脚本](./format.py.md)
+
+### deno-gn
+
+- [ ] [deno `**.g{n|ni}`的编写](deno-gn.md)
 
 ### rust
 
