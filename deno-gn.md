@@ -4,6 +4,7 @@
 
 一些开始的说明
 
+0. [gn-zh](https://github.com/chinanf-boy/gn-zh) gn 中文
 1. `//` 是 根目录的意思
 2. `//build/config/BUILDCONFIG.gn` 这是一个快捷方式/{软连接} 到 v8的构建配置
 
