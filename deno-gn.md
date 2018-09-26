@@ -4,7 +4,7 @@
 
 一些开始的说明
 
-0. [gn-zh](https://github.com/chinanf-boy/gn-zh) gn 中文
+0. [gn-zh](https://github.com/chinanf-boy/gn-zh) gn 存储库的中文翻译: 最好先看看入门指南, 预预热
 1. `//` 是 根目录的意思
 2. `//build/config/BUILDCONFIG.gn` 这是一个快捷方式/{软连接} 到 v8的构建配置
 
@@ -72,19 +72,51 @@ default_args = {
 
 下一步则是同目录下的, [BUILD.gn](#BUILD.gn)
 
-### BUILD.gn
+### //BUILD.gn
 
 自定义构建流程
 
 这是一个`gn`自身的语法(简单来讲)的文件
 
-> `*.gni`与`*.gn`, 我猜啊, 为了与gn自身的流程`BUILD.gn`分别开来,适用于提供可请求的配置文件
+### 目录
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [import](#import)
+- [group](#group)
+  - [因为有点多, 挑重点讲`:deno`](#%E5%9B%A0%E4%B8%BA%E6%9C%89%E7%82%B9%E5%A4%9A-%E6%8C%91%E9%87%8D%E7%82%B9%E8%AE%B2deno)
+- [config](#config)
+- [main_extern](#main_extern)
+- [rust_executable("deno")](#rust_executabledeno)
+- [rust_executable("deno_ns")](#rust_executabledeno_ns)
+- [static_library("libdeno")](#static_librarylibdeno)
+- [v8_source_set("deno_base")](#v8_source_setdeno_base)
+- [v8_source_set("deno_base_test")](#v8_source_setdeno_base_test)
+- [v8_source_set("deno_bindings")](#v8_source_setdeno_bindings)
+- [executable("snapshot_creator")](#executablesnapshot_creator)
+- [run_node("gen_declarations")](#run_nodegen_declarations)
+- [run_node("bundle")](#run_nodebundle)
+- [action("bundle_hash_h")](#actionbundle_hash_h)
+- [source_set("libdeno_nosnapshot")](#source_setlibdeno_nosnapshot)
+- [ts_flatbuffer("msg_ts")](#ts_flatbuffermsg_ts)
+- [rust_flatbuffer("msg_rs")](#rust_flatbuffermsg_rs)
+- [create_snapshot("deno")](#create_snapshotdeno)
+- [create_snapshot("libdeno_test")](#create_snapshotlibdeno_test)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+#### import
+
+> `*.gni`与`*.gn`, 我猜啊, 为了与gn自身的流程`BUILD.gn`分别开来,适用于提供模版和参数的可配置文件
+
+<!-- 
 - [ ] [./build_extra/flatbuffers/flatbuffer.gni](./build_extra/flatbuffers/flatbuffer.gni.md)
 - [ ] [./build_extra/flatbuffers/rust/rust_flatbuffer.gni](./build_extra/flatbuffers/rust/rust_flatbuffer.gni.md)
 - [ ] [./build_extra/deno.gni](./build_extra/deno.gni.md)
 - [ ] [./build_extra/rust/rust.gni](./build_extra/rust/rust.gni.md)
-- [ ] [./build_extra/toolchain/validate.gni](./build_extra/toolchain/validate.gni.md)
+- [ ] [./build_extra/toolchain/validate.gni](./build_extra/toolchain/validate.gni.md) -->
 
 ``` bash
 # Copyright 2018 the Deno authors. All rights reserved. MIT license.
@@ -96,17 +128,35 @@ import("//build_extra/flatbuffers/rust/rust_flatbuffer.gni")
 import("//build_extra/deno.gni")
 import("//build_extra/rust/rust.gni")
 import("//build_extra/toolchain/validate.gni")
+```
 
+#### group
+
+默认运行组块
+
+##### 因为有点多, 挑重点讲`:deno`
+
+``` bash
 group("default") {
   testonly = true
   deps = [
-    ":deno",
+    ":deno", # 只讲这里
     ":deno_ns",
     ":test_cc",
     ":test_rs",
   ]
 }
+```
 
+1. `:deno` 是简写, 代表[rust_executable("deno")](#rust_executable\(\"deno\"\))
+
+#### config
+
+定义的配置, 稍后可快速添加
+
+> 且带有一些平台条件
+
+``` bash
 config("deno_config") {
   include_dirs = [ "third_party/v8" ]  # This allows us to v8/src/base/ libraries.
   configs = [ "third_party/v8:external_config" ]
@@ -125,6 +175,15 @@ config("deno_config") {
   }
 }
 
+```
+
+#### main_extern
+
+主要的rust库
+
+> `$rust_build` 从哪里来 ? [import("//build_extra/rust/rust.gni")](./build_extra/rust/rust.gni.md#declare_args)
+
+``` bash
 main_extern = [
   "$rust_build:hyper",
   "$rust_build:hyper_rustls",
@@ -139,7 +198,15 @@ main_extern = [
   "//build_extra/flatbuffers/rust:flatbuffers",
   ":msg_rs",
 ]
+```
 
+#### rust_executable("deno")
+
+调用 *rust_executable* 模版函数
+
+> `rust_executable`来自哪里? [import("//build_extra/rust/rust.gni") 的 `template("rust_executable")` 模版](./build_extra/rust/rust.gni.md#template\(\"rust_executable\"\))
+
+``` bash
 rust_executable("deno") {
   source_root = "src/main.rs"
   extern = main_extern
@@ -147,7 +214,13 @@ rust_executable("deno") {
     ":libdeno",
   ]
 }
+```
 
+- [:libdeno](#static_library\("libdeno"\))
+
+#### rust_executable("deno_ns")
+
+``` bash
 # This target is for fast incremental development.
 # When modifying the javascript runtime, this target will not go through the
 # extra process of building a snapshot and instead load the bundle from disk.
@@ -180,6 +253,11 @@ v8_executable("test_cc") {
   configs = [ ":deno_config" ]
 }
 
+```
+
+#### static_library("libdeno")
+
+``` bash
 static_library("libdeno") {
   complete_static_lib = true
   sources = [
@@ -216,6 +294,11 @@ static_library("libdeno") {
   }
 }
 
+```
+
+#### v8_source_set("deno_base")
+
+``` bash
 # Only functionality needed for libdeno_test and snapshot_creator
 # In particular no flatbuffers, no assets, no rust, no msg handlers.
 # Because snapshots are slow, it's important that snapshot_creator's
@@ -234,6 +317,11 @@ v8_source_set("deno_base") {
   configs = [ ":deno_config" ]
 }
 
+```
+
+#### v8_source_set("deno_base_test") 
+
+``` bash
 v8_source_set("deno_base_test") {
   testonly = true
   sources = [
@@ -252,14 +340,22 @@ v8_source_set("deno_base_test") {
   defines = [ "LIBDENO_TEST" ]
   configs = [ ":deno_config" ]
 }
+```
 
+#### v8_source_set("deno_bindings")
+
+``` bash
 v8_source_set("deno_bindings") {
   deps = [
     ":deno_base",
   ]
   configs = [ ":deno_config" ]
 }
+```
 
+#### executable("snapshot_creator")
+
+``` bash
 executable("snapshot_creator") {
   sources = [
     "libdeno/snapshot_creator.cc",
@@ -271,6 +367,11 @@ executable("snapshot_creator") {
 }
 
 # Generates type declarations for files that need to be included
+```
+
+#### run_node("gen_declarations")
+
+``` bash
 # in the runtime bundle
 run_node("gen_declarations") {
   out_dir = target_gen_dir
@@ -310,7 +411,11 @@ run_node("gen_declarations") {
     rebase_path("$out_dir/types/globals.js", root_build_dir),
   ]
 }
+```
 
+#### run_node("bundle")
+
+``` bash
 run_node("bundle") {
   out_dir = "$target_gen_dir/bundle/"
   sources = [
@@ -359,7 +464,11 @@ run_node("bundle") {
     "BASEPATH:" + rebase_path(".", root_build_dir),
   ]
 }
+```
 
+#### action("bundle_hash_h")
+
+``` bash
 action("bundle_hash_h") {
   script = "//tools/sha256sum.py"
   inputs = get_target_outputs(":bundle")
@@ -382,7 +491,11 @@ action("bundle_hash_h") {
     ]
   }
 }
+```
 
+#### source_set("libdeno_nosnapshot")
+
+``` bash
 source_set("libdeno_nosnapshot") {
   bundle_outputs = get_target_outputs(":bundle")
   bundle_location = rebase_path(bundle_outputs[0], root_build_dir)
@@ -401,19 +514,32 @@ source_set("libdeno_nosnapshot") {
     "BUNDLE_MAP_LOCATION=\"$bundle_map_location\"",
   ]
 }
+```
 
+#### ts_flatbuffer("msg_ts")
+
+``` bash
 ts_flatbuffer("msg_ts") {
   sources = [
     "src/msg.fbs",
   ]
 }
+```
 
+#### rust_flatbuffer("msg_rs")
+
+``` bash
 rust_flatbuffer("msg_rs") {
   sources = [
     "src/msg.fbs",
   ]
 }
 
+```
+
+#### create_snapshot("deno")
+
+``` bash
 # Generates $target_gen_dir/snapshot_deno.bin
 create_snapshot("deno") {
   js = "$target_gen_dir/bundle/main.js"
@@ -423,6 +549,11 @@ create_snapshot("deno") {
   ]
 }
 
+```
+
+#### create_snapshot("libdeno_test")
+
+``` bash
 # Generates $target_gen_dir/snapshot_libdeno_test.bin
 create_snapshot("libdeno_test") {
   testonly = true

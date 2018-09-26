@@ -1,14 +1,40 @@
 ## rust.gni
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [declare_args](#declare_args)
+- [变量](#%E5%8F%98%E9%87%8F)
+- [1. template("run_rustc")](#1-templaterun_rustc)
+- [2. template("rust_crate")](#2-templaterust_crate)
+- [3. template("rust_executable")](#3-templaterust_executable)
+  - [3.1 rust_crate(bin_name)](#31-rust_cratebin_name)
+  - [3.2 executable(target_name)](#32-executabletarget_name)
+- [4. template("rust_test")](#4-templaterust_test)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+### declare_args
+
+自定义构建参数
+
 ``` bash
 declare_args() {
-  # Absolute path of rust build files.
+  # rust 构建文件的绝对路径.
   rust_build = "//build_extra/rust/"
 
-  # treat the warnings in rust files as errors
+  # 看待 rust 文件中的警告⚠️,为错误❌
   rust_treat_warnings_as_errors = true
 }
 
+```
+
+[gn 入门指南#添加新的构建参数](https://github.com/chinanf-boy/gn-zh/blob/master/docs/quick_start.zh.md#%E6%B7%BB%E5%8A%A0%E6%96%B0%E7%9A%84%E6%9E%84%E5%BB%BA%E5%8F%82%E6%95%B0)
+
+### 变量
+
+``` bash
 if (is_win) {
   executable_suffix = ".exe"
 } else {
@@ -46,6 +72,11 @@ rust_test_ldflags = exec_script("get_rust_ldflags.py",
                                 ],
                                 "list lines")
 
+```
+
+### 1. template("run_rustc")
+
+``` bash
 template("run_rustc") {
   action(target_name) {
     assert(defined(invoker.source_root), "Must specify source_root")
@@ -195,14 +226,21 @@ template("run_rustc") {
   }
 }
 
+```
+
+### 2. template("rust_crate")
+
+> **target_name** === `deno_bin`
+
+``` bash
 template("rust_crate") {
   rustc_name = target_name + "_rustc"
   rustc_label = ":" + rustc_name
   config_name = target_name + "_config"
 
-  # Convert all 'extern' and 'extern_version' items to a single format.
+  # 转换 每个'extern' 和 'extern_version' , 到一个 单 格式.
   extern_infos = []
-  if (defined(invoker.extern)) {
+  if (defined(invoker.extern)) { # invoker.extern 来自根目录 rust_executable("deno") 的调用参数
     foreach(label, invoker.extern) {
       extern_infos += [
         {
@@ -289,19 +327,52 @@ template("rust_crate") {
   }
 }
 
+```
+
+### 3. template("rust_executable") 
+
+定义模版函数,
+
+> [gn template 用法](https://github.com/chinanf-boy/gn-zh/blob/master/docs/language.zh.md#%E6%A8%A1%E6%9D%BF)
+
+``` bash
 template("rust_executable") {
-  bin_name = target_name + "_bin"
+  bin_name = target_name + "_bin" # 这里target_name, 就是 deno
   bin_label = ":" + bin_name
 
+```
+
+#### 3.1 rust_crate(bin_name)
+
+> `bin_name` === `deno_bin`
+
+``` bash
   rust_crate(bin_name) {
     crate_type = "bin"
-    forward_variables_from(invoker, "*")
+    forward_variables_from(invoker, "*") # 这里,
+    # 上层 rust_executable("deno") 调用 template("rust_executable") 模版,的所有变量
+    # 都能给到`rust_crate`模版中的, invoker 使用
   }
 
-  executable(target_name) {
-    forward_variables_from(invoker, "*")
+```
 
-    if (defined(is_test) && is_test) {
+- [forward_variables_from] : 复制来自不同范围的变量.
+
+[另一个模版 `rust_crate(bin_name)`](#2-template\(\"rust_crate\"\))
+
+#### 3.2 executable(target_name)
+
+> gn内置类型函数`executable`:生成一个可执行文件. [更多](https://github.com/chinanf-boy/gn-zh/blob/master/docs/language.zh.md#%E7%9B%AE%E6%A0%87)
+
+- [forward_variables_from] : 复制来自不同范围的变量.
+
+[forward_variables_from]: https://github.com/chinanf-boy/gn-zh/blob/master/docs/reference.md#forward_variables_from
+
+``` bash
+  executable(target_name) {
+    forward_variables_from(invoker, "*") # 复制invoker的所有变量到本地括号闭包内
+
+    if (defined(is_test) && is_test) { # defined 是否有定义变量
       ldflags = rust_test_ldflags
     } else {
       ldflags = rust_bin_ldflags
@@ -317,13 +388,18 @@ template("rust_executable") {
       deps += extern
     }
     if (defined(extern_version)) {
-      foreach(info, extern_version) {
+      foreach(info, extern_version) {  # foreach 迭代一个列表
         deps += [ info.label ]
       }
     }
   }
 }
 
+```
+
+### 4. template("rust_test")
+
+``` bash
 template("rust_test") {
   rust_executable(target_name) {
     forward_variables_from(invoker, "*")
