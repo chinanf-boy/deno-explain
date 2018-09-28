@@ -148,7 +148,7 @@ group("default") {
 }
 ```
 
-1. `:deno` 是简写, 代表[rust_executable("deno")](#rust_executable\(\"deno\"\))
+1. `:deno` 是简写, 代表[rust_executable("deno")](#rust_executabledeno)
 
 #### config
 
@@ -204,7 +204,7 @@ main_extern = [
 
 调用 *rust_executable* 模版函数
 
-> `rust_executable`来自哪里? [import("//build_extra/rust/rust.gni") 的 `template("rust_executable")` 模版](./build_extra/rust/rust.gni.md#template\(\"rust_executable\"\))
+> `rust_executable`来自哪里? [import("//build_extra/rust/rust.gni") 的 `template("rust_executable")` 模版](./build_extra/rust/rust.gni.md#3-templaterust_executable)
 
 ``` bash
 rust_executable("deno") {

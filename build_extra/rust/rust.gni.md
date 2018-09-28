@@ -34,6 +34,8 @@ declare_args() {
 
 ### 变量
 
+- `root_out_dir`:  工具链输出文件的根目录.
+
 ``` bash
 if (is_win) {
   executable_suffix = ".exe"
@@ -76,10 +78,12 @@ rust_test_ldflags = exec_script("get_rust_ldflags.py",
 
 ### 1. template("run_rustc")
 
+> **target_name** == `deno_bin_rustc`
+
 ``` bash
 template("run_rustc") {
   action(target_name) {
-    assert(defined(invoker.source_root), "Must specify source_root")
+    assert(defined(invoker.source_root), "Must specify source_root") # 必须指定主源
     forward_variables_from(invoker,
                            [
                              "crate_name",
@@ -99,23 +103,40 @@ template("run_rustc") {
       is_test = false
     }
 
+```
+#### 1.1 script
+
+``` bash
     sources = [
       source_root,
     ]
     script = "//tools/run_rustc.py"
+```
 
+- `script`: 要为 **action** 和 **action_foreach** 运行的绝对或相对构建的Python脚本文件名
+
+> 就像一般终端运行py脚本, `$ run_rustc.py 下面的参数args`
+
+#### 1.2 args
+
+搞好`rustc`编译器命令的运行参数
+
+- `args`: 传递给`action`的参数 
+- `rebase_path`: 将文件或目录重新定位到另一个位置。
+
+``` bash
     args = [
-      rebase_path(source_root, root_build_dir),
+      rebase_path(source_root, root_build_dir), # 输入文件
       "--crate-name=$crate_name",
       "--crate-type=$crate_type",
     ]
 
     if (rust_treat_warnings_as_errors) {
-      args += [ "-Dwarnings" ]
+      args += [ "-Dwarnings" ] # 警告退出
     }
 
     if (!is_win) {
-      args += [ "--color=always" ]
+      args += [ "--color=always" ] # 颜色
     }
 
     if (!defined(crate_version)) {
@@ -154,7 +175,7 @@ template("run_rustc") {
     if (defined(crate_version)) {
       # Compute the sha256sum of the version number. See comments below.
       # Note that we do this only if there are multiple versions of this crate.
-      hash = exec_script("//tools/sha256sum.py",
+      hash = exec_script("//tools/sha256sum.py", # 同步脚本命令, 暂时当前命令， 运行 /tools/sha256sum.py 先
                          [
                            "--input",
                            crate_version,
@@ -225,8 +246,9 @@ template("run_rustc") {
     }
   }
 }
-
 ```
+
+运行 [//tool/run_rustc.py `args`](../../tools/run_rustc.md#main)
 
 ### 2. template("rust_crate")
 
@@ -234,9 +256,9 @@ template("run_rustc") {
 
 ``` bash
 template("rust_crate") {
-  rustc_name = target_name + "_rustc"
-  rustc_label = ":" + rustc_name
-  config_name = target_name + "_config"
+  rustc_name = target_name + "_rustc" # == deno_bin_rustc
+  rustc_label = ":" + rustc_name # :deno_bin_rustc
+  config_name = target_name + "_config" # == deno_bin_config
 
   # 转换 每个'extern' 和 'extern_version' , 到一个 单 格式.
   extern_infos = []
@@ -245,8 +267,8 @@ template("rust_crate") {
       extern_infos += [
         {
           label = label
-          crate_name = get_label_info(label, "name")
-          crate_name_and_version = crate_name
+          crate_name = get_label_info(label, "name") # 返回名称
+          crate_name_and_version = crate_name 
         },
       ]
     }
@@ -272,13 +294,18 @@ template("rust_crate") {
                            "crate_name",
                            "crate_type",
                          ])
-  if (!defined(crate_name)) {
+  if (!defined(crate_name)) { # 没有拿到 crate_name
     crate_name = target_name
   }
-  if (!defined(crate_type)) {
+  if (!defined(crate_type)) { # 没有拿到 crate_type
     crate_type = "rlib"
   }
 
+```
+
+#### 2.1 run_rustc(rustc_name)
+
+``` bash
   run_rustc(rustc_name) {
     forward_variables_from(invoker,
                            [
@@ -292,7 +319,14 @@ template("rust_crate") {
                            ])
   }
 
-  crate_outputs = get_target_outputs(rustc_label)
+```
+
+- [run_rustc 模版](#1-templaterun_rustc)
+
+#### 2.2 config
+
+``` bash
+  crate_outputs = get_target_outputs(rustc_label) # 获取:deno_bin_rustc 的outputs列表。
   crate_obj = crate_outputs[0]
 
   config(config_name) {
@@ -321,13 +355,16 @@ template("rust_crate") {
     if (!defined(libs)) {
       libs = []
     }
-    libs += [ crate_obj ]
-    deps += [ rustc_label ]
-    all_dependent_configs = [ ":" + config_name ]
+    libs += [ crate_obj ] # 链接的其他库
+    deps += [ rustc_label ] # += [ :deno_bin_rustc ]
+    all_dependent_configs = [ ":" + config_name ] # 强制配置
   }
 }
-
 ```
+
+
+
+- `source_set`: 一个轻量级的虚拟静态库(通常比实际静态库更可取,因为它将更快地构建).
 
 ### 3. template("rust_executable") 
 
@@ -358,7 +395,7 @@ template("rust_executable") {
 
 - [forward_variables_from] : 复制来自不同范围的变量.
 
-[另一个模版 `rust_crate(bin_name)`](#2-template\(\"rust_crate\"\))
+[另一个模版 `rust_crate(bin_name)`](#2-templaterust_crate)
 
 #### 3.2 executable(target_name)
 
